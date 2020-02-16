@@ -53,9 +53,9 @@ const typeDefs = gql`
     updateUser(creds: UserCreds!): User!
     updatePost(creds: PostCreds!): Posts!
     updateComment(creds: CommentCreds!): Comments!
-    deleteUser(id: ID!): String!
-    deletePost(id: ID!): String!
-    deleteComment(id: ID!): String!
+    deleteUser(id: ID!): DeleteResponse!
+    deletePost(id: ID!): DeleteResponse!
+    deleteComment(id: ID!): DeleteResponse!
   }
   input UserCreds {
     id: ID!
@@ -75,18 +75,18 @@ const typeDefs = gql`
     user_id: String!
     post_id: String!
   }
-  input DeleteResponse {
+  type DeleteResponse {
     response: String!
   }
 `;
 
 const resolvers = {
   Query: {
-    async user(_, args) {
+    async user(_, { id }) {
       try {
         const userDoc = await admin
           .firestore()
-          .doc(`users/${args.id}`)
+          .doc(`users/${id}`)
           .get();
         const user = userDoc.data();
         return user || new ValidationError("User ID not found");
@@ -101,11 +101,11 @@ const resolvers = {
         .get();
       return users.docs.map(user => user.data());
     },
-    async post(_, args) {
+    async post(_, { id }) {
       try {
         const postDoc = await admin
           .firestore()
-          .doc(`posts/${args.id}`)
+          .doc(`posts/${id}`)
           .get();
         const post = postDoc.data();
         return post || new ValidationError("Post ID not found");
@@ -120,11 +120,11 @@ const resolvers = {
         .get();
       return posts.docs.map(post => post.data());
     },
-    async comment(_, args) {
+    async comment(_, { id }) {
       try {
         const postDoc = await admin
           .firestore()
-          .doc(`comments/${args.id}`)
+          .doc(`comments/${id}`)
           .get();
         const post = postDoc.data();
         return post || new ValidationError("Comment ID not found");
@@ -263,6 +263,105 @@ const resolvers = {
           .doc(`comments/${id}`)
           .get();
         return new_comment.data();
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    updateUser: async (_, { creds: { id, email, username, img_url } }) => {
+      try {
+        await admin
+          .firestore()
+          .doc(`users/${id}`)
+          .set({
+            id: id,
+            email: email,
+            username: username,
+            img_url: img_url
+          });
+        const updated_user = await admin
+          .firestore()
+          .doc(`users/${id}`)
+          .get();
+        return updated_user.data();
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    updatePost: async (_, { creds: { id, title, body, user_id } }) => {
+      try {
+        await admin
+          .firestore()
+          .doc(`posts/${id}`)
+          .set({
+            id: id,
+            title: title,
+            body: body,
+            user_id: user_id
+          });
+        const updated_post = await admin
+          .firestore()
+          .doc(`posts/${id}`)
+          .get();
+        return updated_post.data();
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    updateComment: async (_, { creds: { id, body, user_id, post_id } }) => {
+      try {
+        await admin
+          .firestore()
+          .doc(`comments/${id}`)
+          .set({
+            id: id,
+            body: body,
+            user_id: user_id,
+            post_id: post_id
+          });
+        const updated_comment = await admin
+          .firestore()
+          .doc(`comments/${id}`)
+          .get();
+        return updated_comment.data();
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    deleteUser: async (_, { id }) => {
+      try {
+        await admin
+          .firestore()
+          .doc(`users/${id}`)
+          .delete();
+        return {
+          response: `User with ID: ${id} has been deleted. 💀`
+        };
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    deletePost: async (_, { id }) => {
+      try {
+        await admin
+          .firestore()
+          .doc(`posts/${id}`)
+          .delete();
+        return {
+          response: `Post with ID: ${id} has been deleted. 💀`
+        };
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    deleteComment: async (_, { id }) => {
+      try {
+        await admin
+          .firestore()
+          .doc(`comments/${id}`)
+          .delete();
+        return {
+          response: `Comment with ID: ${id} has been deleted. 💀`
+        };
       } catch (error) {
         throw new ApolloError(error);
       }
