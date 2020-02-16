@@ -1,5 +1,10 @@
 const express = require("express");
 const admin = require("./config/firebase");
+const functions = require("firebase-functions");
+
+// const { main } = require("./config/googleCreds");
+
+// main().catch(console.error);
 
 // Imports the Google Cloud client library.
 const { Storage } = require("@google-cloud/storage");
@@ -411,6 +416,10 @@ const server = new ApolloServer({
 server.applyMiddleware({
   app,
   path: "/"
+});
+
+app.get("*", (request, response) => {
+  response.send("Hello, world!");
 });
 
 app.listen({ port: process.env.PORT }, () =>
