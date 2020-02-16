@@ -8,6 +8,7 @@
     "server": "nodemon src/index.js"
   },
   "dependencies": {
+    "@google-cloud/storage": "^4.3.1",
     "apollo-server": "^2.10.0",
     "apollo-server-express": "^2.10.1",
     "cors": "^2.8.5",

@@ -1,6 +1,31 @@
 const express = require("express");
 const admin = require("./config/firebase");
-// const cors = require("cors");
+
+// Imports the Google Cloud client library.
+const { Storage } = require("@google-cloud/storage");
+
+// Instantiates a client. If you don't specify credentials when constructing
+// the client, the client library will look for credentials in the
+// environment.
+const storage = new Storage();
+
+async function gCloud() {
+  try {
+    // Makes an authenticated API request.
+    const results = await storage.getBuckets();
+
+    const [buckets] = results;
+
+    console.log("Buckets:");
+    buckets.forEach(bucket => {
+      console.log(bucket.name);
+    });
+  } catch (err) {
+    console.error("ERROR:", err);
+  }
+}
+
+gCloud();
 
 const {
   ApolloServer,
@@ -12,18 +37,6 @@ const {
 const app = express();
 
 require("dotenv").config();
-
-// Cors whitelist 👻
-// const whitelist = [
-//   "http://localhost:3000",
-//   "full-stack-react-graphql.web.app",
-//   "full-stack-react-graphql.firebaseapp.com"
-// ];
-
-// const corsOptions = {
-//   origin: whitelist,
-//   credentials: true
-// };
 
 const typeDefs = gql`
   # Queries
@@ -395,12 +408,9 @@ const server = new ApolloServer({
   introspection: true
 });
 
-// app.use(cors(corsOptions));
-
 server.applyMiddleware({
   app,
   path: "/"
-  // cors: false // disables the apollo-server-express cors to allow the cors middleware use
 });
 
 app.listen({ port: process.env.PORT }, () =>
