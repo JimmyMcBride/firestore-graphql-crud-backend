@@ -1,6 +1,6 @@
 const express = require("express");
 const admin = require("./config/firebase");
-const cors = require("cors");
+// const cors = require("cors");
 
 const {
   ApolloServer,
@@ -14,16 +14,16 @@ const app = express();
 require("dotenv").config();
 
 // Cors whitelist 👻
-const whitelist = [
-  "http://localhost:3000",
-  "full-stack-react-graphql.web.app",
-  "full-stack-react-graphql.firebaseapp.com"
-];
+// const whitelist = [
+//   "http://localhost:3000",
+//   "full-stack-react-graphql.web.app",
+//   "full-stack-react-graphql.firebaseapp.com"
+// ];
 
-const corsOptions = {
-  origin: whitelist,
-  credentials: true
-};
+// const corsOptions = {
+//   origin: whitelist,
+//   credentials: true
+// };
 
 const typeDefs = gql`
   # Queries
@@ -395,12 +395,12 @@ const server = new ApolloServer({
   introspection: true
 });
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 server.applyMiddleware({
   app,
-  path: "/",
-  cors: false // disables the apollo-server-express cors to allow the cors middleware use
+  path: "/"
+  // cors: false // disables the apollo-server-express cors to allow the cors middleware use
 });
 
 app.listen({ port: process.env.PORT }, () =>
